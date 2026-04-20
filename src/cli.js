@@ -1,131 +1,82 @@
+import { Command } from "commander";
+
 import { getLength, getCount, ask, close } from './questions.js';
 
-function parseArgs() {
-    const options = {
-        length: 0,
-        count: 1,
-        upperCase: false,
-        lowerCase: false,
-        numbers: false,
-        specialCharacters: false,
+const program = new Command();
+
+program
+    .name("password-generator")
+    .description("CLI password generator with interactive functions")
+    .version("1.0.0")
+
+const positiveInt = (name) => (value) => {
+    const n = Number(value);
+
+    if (!Number.isInteger(n) || n <= 0) {
+        console.error(`${name} must be an integer greater than 0`);
+        process.exit(1);
+    }
+
+    return n;
+};
+
+program
+    .option("-l, --length <n>", "Length of the password (required)", positiveInt("Length"))
+    .option("-C, --upper", "Include uppercase letters [A-Z]")
+    .option("-c, --lower", "Include lowercase letters [a-z]")
+    .option("-n, --numbers", "Include numbers [0-9]")
+    .option("-s, --symbols", "Include special characters")
+    .option("--count <n>", "Number of passwords to generate", positiveInt("Count"), 1);
+
+program.addHelpText(
+    "after",
+    "\nExamples:\n" +
+    "  node index.js --length 16\n" +
+    "  node index.js --length 16 --symbols --upper\n" +
+    "  node index.js --length 20 --count 5\n" +
+    "  node index.js --length 12 --lower --numbers\n"
+);
+
+program.addHelpText(
+    "after",
+    "Notes:\n" +
+    "  If no options are provided, interactive mode will be started.\n" +
+    "  If no character type is specified, all types will be included."
+);
+
+program.parse(process.argv);
+const commanderOptions = program.opts();
+
+function parseOptions(options) {
+    // Find if any parameter came from the CLI
+    const cliArgs = Object.keys(options).some(
+        key => program.getOptionValueSource(key) === 'cli'
+    );
+
+    const parsedOptions = {
+        length: options.length || 0,
+        count: options.count,
+        upperCase: options.upper || false,
+        lowerCase: options.lower || false,
+        numbers: options.numbers || false,
+        specialCharacters: options.symbols || false,
     };
 
-    let cliArgs, lengthExpected, countExpected, argumentError = false;
-    const argv = process.argv;
-
-    for (let i = 2; i < argv.length; i++) {
-        cliArgs = true;
-        const arg = argv[i];
-
-        switch (arg) {
-            case "--help":
-            case "-h":
-                console.log("Usage: node index.js [options]\n" +
-                    "\n" +
-                    "Options:\n" +
-                    "  -l, --length <n>    Length of the password (required)\n" +
-                    "  -C, --upper         Include uppercase letters [A-Z]\n" +
-                    "  -c, --lower         Include lowercase letters [a-z]\n" +
-                    "  -n, --numbers       Include numbers [0-9]\n" +
-                    "  -s, --symbols       Include special characters\n" +
-                    "      --count <n>     Number of passwords to generate (default: 1)\n" +
-                    "  -h, --help          Display this help message\n" +
-                    "\n" +
-                    "Examples:\n" +
-                    "  node index.js --length 16\n" +
-                    "  node index.js --length 16 --symbols --upper\n" +
-                    "  node index.js --length 20 --count 5\n" +
-                    "  node index.js --length 12 --lower --numbers\n" +
-                    "\n" +
-                    "Notes:\n" +
-                    "  If no options are provided, interactive mode will be started.\n" +
-                    "  If no character type is specified, all types will be included.");
-                process.exit(0);
-                break;
-            case "--length":
-            case "-l":
-                lengthExpected = true;
-                break;
-            case "--upper":
-            case "-C":
-                options.upperCase = true;
-                break;
-            case "--lower":
-            case "-c":
-                options.lowerCase = true;
-                break;
-            case "--numbers":
-            case "-n":
-                options.numbers = true;
-                break;
-            case "--symbols":
-            case "-s":
-                options.specialCharacters = true;
-                break;
-            case "--count":
-                countExpected = true;
-                break
-            default:
-                if (lengthExpected) {
-                    lengthExpected = false;
-                    const parsed = Number(arg);
-
-                    if (Number.isInteger(parsed) && parsed > 0) {
-                        options.length = parsed;
-                    } else {
-                        console.error("Please enter a valid length. (n > 0)");
-                        argumentError = true;
-                    }
-                } else if (countExpected) {
-                    countExpected = false;
-                    const parsed = Number(arg);
-
-                    if (Number.isInteger(parsed) && parsed > 0) {
-                        options.count = parsed;
-                    } else {
-                        console.error("Please enter a valid count. (n > 0)");
-                        argumentError = true;
-                    }
-                } else {
-                    console.error("Invalid argument encountered:", arg);
-                    argumentError = true;
-                }
-        }
-    }
-
-    if (lengthExpected || options.length === 0) {
+    if (parsedOptions.length === 0 && cliArgs) {
         console.error("Length value is missing!");
-        argumentError = true;
-    }
-
-    if (countExpected) {
-        console.error("Count value is missing!");
-        argumentError = true;
-    }
-
-    if (argumentError) {
         process.exit(1);
     }
 
     // If the user didn't specify any character type, enable all by default.
-    const boolOptions = Object.values(options).filter(value => typeof value === "boolean");
+    const boolOptions = Object.values(parsedOptions).filter(value => typeof value === "boolean");
     if (!boolOptions.some(Boolean)) {
-        options.upperCase = true;
-        options.lowerCase = true;
-        options.numbers = true;
-        options.specialCharacters = true;
+        parsedOptions.upperCase = true;
+        parsedOptions.lowerCase = true;
+        parsedOptions.numbers = true;
+        parsedOptions.specialCharacters = true;
     }
 
-    return [cliArgs, options];
-}
-
-function validateOptions(options) {
-    if (options.length === 0) {
-        console.log("You must select at least one character type.")
-        return false;
-    }
-
-    return true;
+    return [cliArgs, parsedOptions];
 }
 
 const messages = {
@@ -136,7 +87,7 @@ const messages = {
 }
 
 export async function getOptions() {
-    const [cliArgs, options] = parseArgs();
+    const [cliArgs, options] = parseOptions(commanderOptions);
 
     if (!cliArgs) {
         options.length = await getLength();
@@ -153,10 +104,6 @@ export async function getOptions() {
     if (options.lowerCase) validOptions.push("lowerCase");
     if (options.numbers) validOptions.push("numbers");
     if (options.specialCharacters) validOptions.push("specialCharacters");
-
-    if (!validateOptions(validOptions)) {
-        process.exit(1);
-    }
 
     close();
 

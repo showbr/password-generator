@@ -1,4 +1,4 @@
-import { randomInt } from 'crypto'
+import { randomInt } from 'crypto';
 
 const charsets = {
     upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",

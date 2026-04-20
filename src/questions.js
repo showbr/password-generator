@@ -2,6 +2,7 @@ const readline = require("readline/promises");
 
 let rl = null;
 
+// Lazy initialization of the readline instance
 function getReadline() {
     if (!rl) {
         rl = readline.createInterface({

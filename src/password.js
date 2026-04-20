@@ -1,4 +1,4 @@
-const { randomInt } = require('crypto')
+const { randomInt } = require('crypto');
 
 const charsets = {
     upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -7,6 +7,9 @@ const charsets = {
     specialCharacters: "!@#$%^&*()-_=+,.<>/?;[]{}"
 }
 
+// Uses crypto.randomInt instead of Math.random — Math.random is not
+// cryptographically secure and can produce predictable sequences.
+// First pick a random character type, then a random character within that type.
 function generateChar(options) {
     const charType = options[randomInt(0, options.length)];
     const char = charsets[charType];
@@ -23,4 +26,4 @@ function generatePassword(length, options) {
     return password;
 }
 
-module.exports = { generatePassword }
+module.exports = { generatePassword };

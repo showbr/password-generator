@@ -20,7 +20,26 @@ function parseArgs() {
         switch (arg) {
             case "--help":
             case "-h":
-                console.log("");
+                console.log("Usage: node index.js [options]\n" +
+                    "\n" +
+                    "Options:\n" +
+                    "  -l, --length <n>    Length of the password (required)\n" +
+                    "  -C, --upper         Include uppercase letters [A-Z]\n" +
+                    "  -c, --lower         Include lowercase letters [a-z]\n" +
+                    "  -n, --numbers       Include numbers [0-9]\n" +
+                    "  -s, --symbols       Include special characters\n" +
+                    "      --count <n>     Number of passwords to generate (default: 1)\n" +
+                    "  -h, --help          Display this help message\n" +
+                    "\n" +
+                    "Examples:\n" +
+                    "  node index.js --length 16\n" +
+                    "  node index.js --length 16 --symbols --upper\n" +
+                    "  node index.js --length 20 --count 5\n" +
+                    "  node index.js --length 12 --lower --numbers\n" +
+                    "\n" +
+                    "Notes:\n" +
+                    "  If no options are provided, interactive mode will be started.\n" +
+                    "  If no character type is specified, all types will be included.");
                 process.exit(0);
                 break;
             case "--length":
@@ -88,8 +107,8 @@ function parseArgs() {
         process.exit(1);
     }
 
+    // If the user didn't specify any character type, enable all by default.
     const boolOptions = Object.values(options).filter(value => typeof value === "boolean");
-
     if (!boolOptions.some(Boolean)) {
         options.upperCase = true;
         options.lowerCase = true;

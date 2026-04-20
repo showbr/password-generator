@@ -1,4 +1,5 @@
 const readline = require("readline/promises");
+const { randomInt } = require("crypto");
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -20,18 +21,19 @@ async function getLength() {
 
 async function ask(message) {
     while (true) {
-        const upperCase = await rl.question(message);
+        const answer = await rl.question(message);
+        const lowerCaseAnswer = answer.toLowerCase();
 
-        if (["y", "n", "yes", "no"].includes(upperCase.toLowerCase())) {
-            return upperCase[0] === "y";
+        if (["y", "n", "yes", "no"].includes(lowerCaseAnswer)) {
+            return lowerCaseAnswer[0] === "y";
         }
 
         console.log("Please enter a valid answer. (y/n)");
     }
 }
 
-function validateOptions(upperCase, lowerCase, numbers, specialCharacters) {
-    if (!lowerCase && !upperCase && !numbers && !specialCharacters) {
+function validateOptions(options) {
+    if (options.length === 0) {
         console.log("You must select at least one character type.")
         return false;
     }
@@ -46,16 +48,54 @@ const messages = {
     specialCharacters: "Will the password have special characters? (y/n) ",
 }
 
-async function main() {
+async function getOptions() {
     const length = await getLength();
     const upperCase = await ask(messages.upperCase);
     const lowerCase = await ask(messages.lowerCase);
     const numbers = await ask(messages.numbers);
     const specialCharacters = await ask(messages.specialCharacters);
 
-    if (!validateOptions(upperCase, lowerCase, numbers, specialCharacters)) {
+    const validOptions = [];
+
+    if (upperCase) validOptions.push("upperCase");
+    if (lowerCase) validOptions.push("lowerCase");
+    if (numbers) validOptions.push("numbers");
+    if (specialCharacters) validOptions.push("specialCharacters");
+
+    if (!validateOptions(validOptions)) {
         process.exit(1);
     }
+
+    return [length, validOptions];
 }
 
-main().then(() => rl.close());
+const charsets = {
+    upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    lowerCase: "abcdefghijklmnopqrstuvwxyz",
+    numbers: "0123456789",
+    specialCharacters: "!@#$%^&*()-_=+,.<>/?;[]{}"
+}
+
+function generateChar(options) {
+    const charType = options[randomInt(0, options.length)];
+    const char = charsets[charType];
+    return char[randomInt(0, char.length)];
+}
+
+function generatePassword(length, options) {
+    let password = ""
+    for (let i = 0; i < length; i++) {
+        const char = generateChar(options);
+        password += char;
+    }
+
+    return password;
+}
+
+getOptions().then(([length, validOptions]) => {
+    const password = generatePassword(length, validOptions);
+    console.log(`\nPassword generated: ${password}`);
+    rl.close()
+});
+
+

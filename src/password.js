@@ -1,4 +1,4 @@
-const { randomInt } = require('crypto');
+import { randomInt } from 'crypto'
 
 const charsets = {
     upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -16,7 +16,7 @@ function generateChar(options) {
     return char[randomInt(0, char.length)];
 }
 
-function generatePassword(length, options) {
+export function generatePassword(length, options) {
     let password = ""
     for (let i = 0; i < length; i++) {
         const char = generateChar(options);
@@ -25,5 +25,3 @@ function generatePassword(length, options) {
 
     return password;
 }
-
-module.exports = { generatePassword };

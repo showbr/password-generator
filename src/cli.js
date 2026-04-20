@@ -1,4 +1,4 @@
-const { getLength, getCount, ask, close } = require('./questions');
+import { getLength, getCount, ask, close } from './questions.js';
 
 function parseArgs() {
     const options = {
@@ -135,7 +135,7 @@ const messages = {
     specialCharacters: "Will the password have special characters? (y/n) ",
 }
 
-async function getOptions() {
+export async function getOptions() {
     const [cliArgs, options] = parseArgs();
 
     if (!cliArgs) {
@@ -162,5 +162,3 @@ async function getOptions() {
 
     return [options.length, options.count, validOptions];
 }
-
-module.exports = { getOptions };

@@ -1,11 +1,11 @@
-const readline = require("readline/promises");
+import { createInterface } from 'readline/promises';
 
 let rl = null;
 
 // Lazy initialization of the readline instance
 function getReadline() {
     if (!rl) {
-        rl = readline.createInterface({
+        rl = createInterface({
             input: process.stdin,
             output: process.stdout,
         });
@@ -13,7 +13,7 @@ function getReadline() {
     return rl;
 }
 
-async function getLength() {
+export async function getLength() {
     while (true) {
         const length = await getReadline().question("How many characters will the password have? ");
         const parsed = Number(length);
@@ -26,7 +26,7 @@ async function getLength() {
     }
 }
 
-async function getCount() {
+export async function getCount() {
     while (true) {
         const count = await getReadline().question("How many passwords will be generated? ");
         const parsed = Number(count);
@@ -39,7 +39,7 @@ async function getCount() {
     }
 }
 
-async function ask(message) {
+export async function ask(message) {
     while (true) {
         const answer = await getReadline().question(message);
         const lowerCaseAnswer = answer.toLowerCase();
@@ -52,8 +52,6 @@ async function ask(message) {
     }
 }
 
-function close() {
+export function close() {
     if (rl) rl.close();
 }
-
-module.exports = { ask, getLength, getCount, close };

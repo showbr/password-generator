@@ -64,9 +64,17 @@ password-generator/
 │   ├── cli.js        # Argument parsing and option orchestration
 │   ├── questions.js  # Interactive prompts
 │   └── password.js   # Password generation logic
+├── tests/
+│   └── password.test.js
 ├── index.js          # Entry point
 ├── package.json
 └── .gitignore
+```
+
+## Testing
+
+```bash
+npm test
 ```
 
 ## Security

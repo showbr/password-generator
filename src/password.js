@@ -1,6 +1,6 @@
 import { randomInt } from 'crypto';
 
-const charsets = {
+export const charsets = {
     upperCase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
     lowerCase: "abcdefghijklmnopqrstuvwxyz",
     numbers: "0123456789",
